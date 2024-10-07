@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: web-store-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: webstore
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pg-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: web-store-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: webstore@mail.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "42080:80"
+    networks:
+      - pg-network
+
+  app:
+    build: .
+    container_name: web-store-app
+    restart: always
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3400:3400"
+    environment:
+      DB_HOST: "web-store-postgres"
+      PORT: 3400
+    depends_on:
+      - postgres
+    command: npm run start
+    networks:
+      - pg-network
+
+#  frontend:
+##    build: /Users/kimmeir/Documents/Projects/angular/andrewStore
+#    build: /Users/kimmeir/Documents/Projects/angular/andrewStore
+#    container_name: web-store-frontend
+#    restart: always
+#    volumes:
+#      - /Users/kimmeir/Documents/Projects/angular/andrewStore:/app
+#      - /app/node_modules
+#    ports:
+#      - "4300:4300"
+#    environment:
+#      REACT_APP_API_URL: "http://localhost:3400"
+#    command: npm start
+#    networks:
+#      - pg-network
+
+volumes:
+  postgres_data:
+
+networks:
+  pg-network:
