@@ -7,7 +7,7 @@ const force = false
 class ProductController {
 
   constructor() {
-    this.init()
+    // this.init()
   }
 
   init = async () => {
@@ -27,7 +27,7 @@ class ProductController {
     const newProducts = await Product.bulkCreate(products)
     res.json(newProducts)
   }
- 
+
   getProducts = async (req, res) => {
     const products = await Product.findAll()
     res.json(products)
@@ -58,7 +58,7 @@ class ProductController {
     res.json(products)
   }
 
-  createMockProducts = async (req, res) => {
+  createMockProducts = async () => {
     return await Product.bulkCreate(productsMock)
   }
 }

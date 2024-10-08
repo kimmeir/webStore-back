@@ -16,7 +16,7 @@ const generateJwt = (id, email) => {
 
 class UsersController {
   constructor() {
-    this.init()
+    // this.init()
   }
 
   init = async () => {
@@ -105,7 +105,7 @@ class UsersController {
         return res.status(400).json({ message: 'User already exists' })
 
       const hashPassword = bcrypt.hashSync(password, 7)
-      const user = await Users.create({ email, first_name, password: hashPassword })
+      await Users.create({ email, first_name, password: hashPassword })
 
       res.status(201).json({ message: 'User created' })
     } catch (error) {

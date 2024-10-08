@@ -6,7 +6,7 @@ const force = false
 
 class CartController {
   constructor() {
-    this.init()
+    // this.init()
   }
 
   async init() {
