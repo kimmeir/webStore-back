@@ -1,6 +1,7 @@
 const db = require('../db')
 const Category = require('../models/category.model')
 
+const force = false
 
 class CategoriesController {
   constructor() {
@@ -9,10 +10,9 @@ class CategoriesController {
 
   async init() {
     await db.authenticate()
-    await Category.sync()
-    // await Category.sync({force: true}); //for refreshing tables
+    await Category.sync({ force })
   }
- 
+
   async createCategory(req, res) {
     const newCategory = await Category.create(req.body)
     res.json(newCategory)
