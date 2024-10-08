@@ -31,19 +31,17 @@ class UsersController {
       console.log('Error: ' + error)
     }
   }
-  createUser = async (req, res) => {
-    try {
-      const newUser = await Users.create(req.body)
-      return res.json(newUser)
-    } catch (error) {
-      return res.status(400).json({ message: 'Create user error ' + error })
-    }
-  }
 
   getUsers = async (req, res) => {
     try {
-      const users = await Users.findAll()
-      res.json(users)
+      const users = await Users.findAll({
+        attributes: { exclude: [ 'password', 'roleId' ] },
+        include: {
+          model: Roles,
+          attributes: [ 'value' ],
+        },
+      })
+      return res.json(users)
     } catch (error) {
       res.status(400).json({ message: 'Get users error ' + error })
     }
@@ -65,7 +63,7 @@ class UsersController {
           return user
         })
 
-      res.json(user)
+      return res.json(user)
     } catch (error) {
       res.status(400).json({ message: 'Get user by id error ' + error })
     }
@@ -77,7 +75,7 @@ class UsersController {
       const id = req.params.id
       const user = await Users.update(req.body, { where: { id } })
         .then(() => Users.findOne({ where: { id } }))
-      res.json(user)
+      return res.json(user)
     } catch (error) {
       res.status(400).json({ message: 'Update user error ' + error })
     }
@@ -107,7 +105,7 @@ class UsersController {
       const hashPassword = bcrypt.hashSync(password, 7)
       await Users.create({ email, first_name, password: hashPassword })
 
-      res.status(201).json({ message: 'User created' })
+      return res.status(201).json({ message: 'User created' })
     } catch (error) {
       res.status(400).json({ message: 'Registration error ' + error })
     }
