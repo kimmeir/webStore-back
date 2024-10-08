@@ -50,21 +50,18 @@ services:
     networks:
       - pg-network
 
-#  frontend:
-##    build: /Users/kimmeir/Documents/Projects/angular/andrewStore
-#    build: /Users/kimmeir/Documents/Projects/angular/andrewStore
-#    container_name: web-store-frontend
-#    restart: always
-#    volumes:
-#      - /Users/kimmeir/Documents/Projects/angular/andrewStore:/app
-#      - /app/node_modules
-#    ports:
-#      - "4300:4300"
-#    environment:
-#      REACT_APP_API_URL: "http://localhost:3400"
-#    command: npm start
-#    networks:
-#      - pg-network
+  frontend:
+    build:
+      context: /Users/kimmeir/Documents/Projects/angular/andrewStore
+      dockerfile: Dockerfile
+    container_name: web-store-frontend
+    restart: always
+    volumes:
+      - /Users/kimmeir/Documents/Projects/angular/andrewStore/dist/andrew-store/browser
+    ports:
+      - "4500:80"
+    networks:
+      - pg-network
 
 volumes:
   postgres_data:

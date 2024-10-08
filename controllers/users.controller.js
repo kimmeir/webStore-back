@@ -11,7 +11,7 @@ const rolesMock = require('../mocks/roles.mock')
 const force = false
 
 const generateJwt = (id, email) => {
-  return jwt.sign({ id, email, cartId }, CODE, { expiresIn: '24h' })
+  return jwt.sign({ id, email }, CODE, { expiresIn: '24h' })
 }
 
 class UsersController {
@@ -126,8 +126,7 @@ class UsersController {
       if (!validPassword)
         return res.status(400).json({ message: 'Invalid password' })
 
-      const token = generateJwt(user.id, user.email)
-
+      const token = await generateJwt(user.id, user.email)
       return res.json({ access_token: token })
     } catch (error) {
       res.status(400).json({ message: 'Login error ' + error })
