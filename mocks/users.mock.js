@@ -4,13 +4,13 @@ module.exports = [
     first_name: 'John',
     last_name: 'Doe',
     email: 'john_doe@mail.com',
-    role: 1,
+    roleId: 1,
     password
   },
   {
     first_name: 'Andrew',
     email: 'andrew@mail.com',
-    role: 2,
+    roleId: 2,
     password
   },
 ]

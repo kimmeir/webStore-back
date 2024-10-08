@@ -13,10 +13,10 @@ const db_init = async () => {
   try {
     await db.authenticate()
 
-    await RoleModel.sync({ force })
     await UserModel.sync({ force })
-    await CategoryModel.sync({ force })
+    await RoleModel.sync({ force })
     await ProductModel.sync({ force })
+    await CategoryModel.sync({ force })
     await CartItemModel.sync({ force })
 
     await usersController.createMockUsers()

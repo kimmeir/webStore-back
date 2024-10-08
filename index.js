@@ -13,9 +13,10 @@ const routes = [
   require('./routes/cart.routes'),
 ]
 
-if (reInitDB)
+if (reInitDB) {
+  console.log('Reinitializing database...')
   db_init()
-
+}
 app.use(cors())
 app.use(express.json())
 
