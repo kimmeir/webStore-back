@@ -39,6 +39,10 @@ services:
       - "3400:3400"
     environment:
       DB_HOST: "web-store-postgres"
+      DB_NAME: "webstore"
+      DB_USER: "postgres"
+      DB_PASSWORD: "root"
+      DB_PORT: 5432
       PORT: 3400
     depends_on:
       - postgres
