@@ -19,7 +19,7 @@ class CartController {
       const { id: cartId } = req.user
       const cart = await CartItem.findAll({
         where: { cartId },
-        attributes: { exclude: [ 'cartId', 'productId', 'createdAt', 'updatedAt' ] },
+        attributes: { exclude: [ 'cartId', 'createdAt', 'updatedAt' ] },
         include: {
           model: ProductModel,
           attributes: { exclude: [ 'categoryId', 'createdAt', 'updatedAt' ] }
@@ -43,16 +43,39 @@ class CartController {
       } else
         await CartItem.create({ cartId, productId, quantity })
 
-      res.status(201).json({ message: 'Item added to cart' })
+      await this.getCart(req, res)
     } catch (error) {
       res.status(400).json({ message: 'Add item to cart error ' + error })
     }
   }
 
+  bulkAddToCart = async (req, res) => {
+    try {
+      const { id: cartId } = req.user
+      const items = req.body.map(item => ( {
+        cartId,
+        productId: item.productId,
+        quantity: item.quantity
+      } ))
+
+      await CartItem.bulkCreate(items, {
+        updateOnDuplicate: [ 'quantity' ],
+      })
+        .then(() => this.getCart(req, res))
+        .catch(error => console.log('bulk error:', error))
+
+    } catch (error) {
+      res.status(400).json({ message: 'Add items to cart error ' + error })
+    }
+  }
+
   deleteCartItem = async (req, res) => {
-    const id = req.query.id
-    await CartItem.destroy({ where: { id } })
-      .then(() => res.json({ status: 'Cart item deleted' }))
+    const { id: cartId } = req.user
+
+    const productId = req.query.id
+    console.log('productId', productId)
+    await CartItem.destroy({ where: { cartId, productId } })
+    await this.getCart(req, res)
   }
 }
 

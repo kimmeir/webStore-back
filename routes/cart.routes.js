@@ -5,6 +5,7 @@ const authMiddleware = require('../middleware/auth.middleware')
 
 router.get('/cart', authMiddleware, cartController.getCart)
 router.post('/cart/add-to-cart', authMiddleware, cartController.addItemToCart)
+router.post('/cart/bulk-add-to-cart', authMiddleware, cartController.bulkAddToCart)
 router.delete('/cart/remove-from-cart', authMiddleware, cartController.deleteCartItem)
 
 module.exports = router
