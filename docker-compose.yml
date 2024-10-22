@@ -41,7 +41,7 @@ services:
       DB_HOST: "web-store-postgres"
       DB_NAME: "webstore"
       DB_USER: "postgres"
-      DB_PASSWORD: "root"
+      DB_PASSWORD: "password"
       DB_PORT: 5432
       PORT: 3400
     depends_on:

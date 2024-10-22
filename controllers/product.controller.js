@@ -1,6 +1,7 @@
 const db = require('../db')
 const Product = require('../models/product.model')
 const productsMock = require('../mocks/products.mock')
+const { Op } = require('sequelize')
 
 const force = false
 
@@ -29,6 +30,18 @@ class ProductController {
   }
 
   getProducts = async (req, res) => {
+    const { search } = req.query
+    if (search) {
+      const products = await Product.findAll({
+        where: {
+          [Op.or]: {
+            title: { [Op.iLike]: `%${search}%` },
+            description: { [Op.iLike]: `%${search}%` },
+          },
+        }
+      })
+      return res.json(products)
+    }
     const products = await Product.findAll()
     res.json(products)
   }
