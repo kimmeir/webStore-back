@@ -11,6 +11,7 @@ const routes = [
   require('./routes/product.routes'),
   require('./routes/categories.routes'),
   require('./routes/cart.routes'),
+  require('./routes/stripe.routes')
 ]
 
 if (reInitDB) {

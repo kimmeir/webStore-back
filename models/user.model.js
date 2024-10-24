@@ -35,6 +35,10 @@ const Users = db.define('users', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  stripeId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 })
 
 Users.belongsTo(RoleModel, { foreignKey: 'roleId' })

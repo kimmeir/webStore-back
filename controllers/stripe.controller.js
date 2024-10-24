@@ -1,0 +1,82 @@
+const dotenv = require('dotenv')
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+const users = require('../models/user.model')
+
+class StripeController {
+  createPaymentIntent = async (req, res) => {
+    try {
+      console.log(req.body)
+      // const customer = await this.createCustomer(req, res)
+      // if (customer.id) {
+      //   await users.update({ stripeId: customer.id }, { where: { email: req.body.email } })
+      // }
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: req.body.amount,
+        currency: req.body.currency,
+        payment_method_types: [ 'card' ],
+      })
+      res.status(200).json(paymentIntent)
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  }
+
+  createCustomer = async (req, res) => {
+    try {
+      const { id } = req.user
+      const user = await users.findOne({ where: { id } })
+
+      req.body = {
+        ...req.body,
+        name: `${user.first_name} ${user.last_name || ''}`.trim(),
+        email: user.email
+      }
+
+      const customer = await stripe.customers.create({
+        name: req.body.name,
+        email: req.body.email,
+      })
+      await users.update({ stripeId: customer.id }, { where: { id } })
+      return customer
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  }
+
+  createPaymentMethod = async (req, res) => {
+    try {
+      let { stripeId, paymentMethodId } = req.body
+      if (!stripeId) {
+        const customer = await this.createCustomer(req, res)
+        stripeId = customer.id
+      }
+
+      const paymentMethod = await stripe.paymentMethods.attach(
+        paymentMethodId,
+        { customer: stripeId }
+      )
+      console.log(paymentMethod)
+
+      res.status(200).json(paymentMethod)
+    } catch
+      (error) {
+      res.status(500).json({ error: error.message })
+    }
+  }
+
+  getCustomerPaymentMethods = async (req, res) => {
+    try {
+      const { stripeId } = req.query
+      const cards = await stripe.customers.listPaymentMethods(stripeId)
+
+      res.status(200).json(cards.data)
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  }
+
+}
+
+module
+  .exports = new StripeController()
