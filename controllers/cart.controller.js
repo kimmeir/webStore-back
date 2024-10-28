@@ -72,9 +72,9 @@ class CartController {
   deleteCartItem = async (req, res) => {
     const { id: cartId } = req.user
 
-    const productId = req.query.id
-    console.log('productId', productId)
-    await CartItem.destroy({ where: { cartId, productId } })
+    const id = req.query.id
+
+    await CartItem.destroy({ where: { cartId, id } })
     await this.getCart(req, res)
   }
 }
