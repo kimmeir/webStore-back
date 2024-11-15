@@ -1,8 +1,8 @@
-const db = require('../db')
-const { DataTypes } = require('sequelize')
-const Category = require('./category.model')
+import { DataTypes } from 'sequelize'
+import { db } from '../db'
+import { CategoryModel } from './category.model'
 
-const ProductModel = db.define('products', {
+export const ProductModel = db.define('products', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -24,7 +24,7 @@ const ProductModel = db.define('products', {
   categoryId: {
     type: DataTypes.INTEGER,
     references: {
-      model: Category,
+      model: CategoryModel,
       key: 'id',
     },
     allowNull: false,
@@ -35,6 +35,4 @@ const ProductModel = db.define('products', {
   },
 })
 
-ProductModel.belongsTo(Category, { foreignKey: 'categoryId' })
-
-module.exports = ProductModel
+ProductModel.belongsTo(CategoryModel, { foreignKey: 'categoryId' })

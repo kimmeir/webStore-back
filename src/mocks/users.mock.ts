@@ -1,5 +1,6 @@
 const password = '$2a$07$WgsgAO/Va1C6myjLicS4JOCLjVVREjQwkLOepCiGflbOu4v/JnoZ.'
-module.exports = [
+
+const usersMock = [
   {
     first_name: 'John',
     last_name: 'Doe',
@@ -14,3 +15,5 @@ module.exports = [
     password
   },
 ]
+
+export default usersMock

@@ -41,4 +41,4 @@ const categoriesMock = [
   // }
 ]
 
-module.exports = categoriesMock
+export default categoriesMock

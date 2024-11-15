@@ -1,6 +1,7 @@
-const Router = require('express')
-const router = new Router()
-const categoriesController = require('../controllers/categories.controller')
+import { Router } from 'express';
+import categoriesController from '../controllers/categories.controller';
+
+const router = Router()
 
 router.get('/categories', categoriesController.getCategories)
 router.get('/categories/:id', categoriesController.getCategoryById)

@@ -1,29 +1,37 @@
-const dotenv = require('dotenv')
+import { type NextFunction } from 'express';
+import { UsersModel } from '../models/user.model';
+
+require('dotenv')
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
-const users = require('../models/user.model')
 
 class StripeController {
-  createPaymentIntent = async (req, res, next) => {
+  createPaymentIntent = async (req: any) => {
     try {
-      const { id } = req.user
-
-      const customer = await this.getCustomer(req, res, next, true)
-      const paymentIntent = await stripe.paymentIntents.create({
+      return await stripe.paymentIntents.create({
         amount: req.body.amount,
         currency: req.body.currency,
-        customer: customer.id,
-        payment_method: customer.metadata.default_source,
+        customer: req.body.customerId,
+        payment_method: req.body.paymentMethodId,
       })
-      res.status(200).json(paymentIntent)
-    } catch (error) {
-      res.status(500).json({ error: error.message })
+    } catch (error: any) {
+      console.log('Create payment intent error:', error)
     }
   }
 
-  createCustomer = async (req, res) => {
+  confirmPaymentIntent = (req: any, res: any) => {
+    try {
+      return stripe.paymentIntents.confirm(req.body.paymentIntentId, {
+        return_url: 'http://localhost:3400/api/stripe-success',
+      });
+    } catch (error: any) {
+      console.log('Confirm payment intent error:', error)
+    }
+  }
+
+  createCustomer = async (req: any, res: any) => {
     try {
       const { id } = req.user
-      const user = await users.findOne({ where: { id } })
+      const user = await UsersModel.findOne({ where: { id } })
 
       req.body = {
         ...req.body,
@@ -35,14 +43,14 @@ class StripeController {
         name: req.body.name,
         email: req.body.email,
       })
-      await users.update({ stripeId: customer.id }, { where: { id } })
+      await UsersModel.update({ stripeId: customer.id }, { where: { id } })
       return customer
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ error: error.message })
     }
   }
 
-  createPaymentMethod = async (req, res) => {
+  createPaymentMethod = async (req: any, res: any) => {
     try {
       let { stripeId, paymentMethodId } = req.body
       if (!stripeId) {
@@ -54,31 +62,29 @@ class StripeController {
         paymentMethodId,
         { customer: stripeId }
       )
-      console.log(paymentMethod)
-
       res.status(200).json(paymentMethod)
     } catch
-      (error) {
+      (error: any) {
       res.status(500).json({ error: error.message })
     }
   }
 
-  getCustomerPaymentMethods = async (req, res) => {
+  getCustomerPaymentMethods = async (req: any, res: any) => {
     try {
       const { stripeId } = req.query
       const cards = await stripe.customers.listPaymentMethods(stripeId)
 
       res.status(200).json(cards.data)
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ error: error.message })
     }
   }
 
-  setCardAsDefault = async (req, res) => {
+  setCardAsDefault = async (req: any, res: any) => {
     try {
       const { id } = req.user
       const { paymentMethodId } = req.body
-      const { stripeId } = await users.findOne({ where: { id } })
+      const { stripeId } = await UsersModel.findOne({ where: { id } })
 
       const customer = await stripe.customers.update(
         stripeId,
@@ -93,10 +99,11 @@ class StripeController {
     }
   }
 
-  getCustomer = async (req, res, next, locale = false) => {
+  getCustomer = async (req: any, res: any, next: NextFunction, locale = false) => {
     try {
+      console.log('Get customer:', req.user)
       const { id } = req.user
-      const user = await users.findOne({ where: { id } })
+      const user = await UsersModel.findOne({ where: { id } })
       const customer = await stripe.customers.retrieve(user.stripeId)
 
       if (!locale)
@@ -107,7 +114,16 @@ class StripeController {
       res.status(400).json({ message: 'Get customer error ' + error })
     }
   }
+
+  getCustomerLocale = async (req: any) => {
+    try {
+      const { id } = req.user
+      const user = await UsersModel.findOne({ where: { id } })
+      return await stripe.customers.retrieve(user.stripeId)
+    } catch (error) {
+      console.log('Get customer locale error:', error)
+    }
+  }
 }
 
-module
-  .exports = new StripeController()
+export default new StripeController()

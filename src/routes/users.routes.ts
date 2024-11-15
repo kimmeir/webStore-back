@@ -1,8 +1,9 @@
-const Router = require('express')
-const router = new Router()
-const userController = require('../controllers/users.controller')
-const { check } = require('express-validator')
-const authMiddleware = require('../middleware/auth.middleware')
+import { Router } from 'express';
+import { check } from 'express-validator';
+import userController from '../controllers/users.controller';
+import authMiddleware from '../middleware/auth.middleware';
+
+const router = Router()
 
 router.post('/auth/registration', [
   check('email', 'Incorrect email').normalizeEmail().isEmail().notEmpty(),

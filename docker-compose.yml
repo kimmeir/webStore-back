@@ -50,18 +50,18 @@ services:
     networks:
       - pg-network
 
-  frontend:
-    build:
-      context: /Users/kimmeir/Documents/Projects/angular/andrewStore
-      dockerfile: Dockerfile
-    container_name: web-store-frontend
-    restart: always
-    volumes:
-      - /Users/kimmeir/Documents/Projects/angular/andrewStore/dist/andrew-store/browser
-    ports:
-      - "4500:80"
-    networks:
-      - pg-network
+#  frontend:
+#    build:
+#      context: /Users/kimmeir/Documents/Projects/angular/andrewStore
+#      dockerfile: Dockerfile
+#    container_name: web-store-frontend
+#    restart: always
+#    volumes:
+#      - /Users/kimmeir/Documents/Projects/angular/andrewStore/dist/andrew-store/browser
+#    ports:
+#      - "4500:80"
+#    networks:
+#      - pg-network
 
 volumes:
   postgres_data:

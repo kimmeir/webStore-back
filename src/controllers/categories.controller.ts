@@ -1,6 +1,6 @@
-const db = require('../db')
-const Category = require('../models/category.model')
-const categoriesMock = require('../mocks/categories.mock')
+import { db } from '../db'
+import { CategoryModel } from '../models/category.model'
+import categoriesMock from '../mocks/categories.mock'
 
 const force = false
 
@@ -12,51 +12,51 @@ class CategoriesController {
   init = async () => {
     try {
       await db.authenticate()
-      await Category.sync({ force })
+      await CategoryModel.sync({ force })
     } catch (error) {
       console.log('Error: ' + error)
     }
   }
 
-  createCategory = async (req, res) => {
+  createCategory = async (req: any, res: any) => {
     try {
-      const newCategory = await Category.create(req.body)
+      const newCategory = await CategoryModel.create(req.body)
       res.json(newCategory)
     } catch (error) {
       res.status(400).json({ message: 'Create category error ' + error })
     }
   }
 
-  getCategories = async (req, res) => {
-    const categories = await Category.findAll()
+  getCategories = async (req: any, res: any) => {
+    const categories = await CategoryModel.findAll()
     res.json(categories)
   }
 
-  getCategoryById = async (req, res) => {
+  getCategoryById = async (req: any, res: any) => {
     try {
       const id = req.params.id
-      const category = await Category.findOne({ where: { id } })
+      const category = await CategoryModel.findOne({ where: { id } })
       res.json(category)
     } catch (error) {
       res.status(400).json({ message: 'Get category by id error ' + error })
     }
   }
 
-  updateCategory = async (req, res) => {
+  updateCategory = async (req: any, res: any) => {
     try {
       const id = req.params.id
-      const category = await Category.update(req.body, { where: { id } })
-        .then(() => Category.findOne({ where: { id } }))
+      const category = await CategoryModel.update(req.body, { where: { id } })
+        .then(() => CategoryModel.findOne({ where: { id } }))
       res.json(category)
     } catch (error) {
       res.status(400).json({ message: 'Update category error ' + error })
     }
   }
 
-  deleteCategory = async (req, res) => {
+  deleteCategory = async (req: any, res: any) => {
     try {
       const id = req.params.id
-      await Category.destroy({ where: { id } })
+      await CategoryModel.destroy({ where: { id } })
         .then(() => res.json({ status: 'Category deleted' }))
     } catch (error) {
       res.status(400).json({ message: 'Delete category error ' + error })
@@ -64,8 +64,8 @@ class CategoriesController {
   }
 
   createMockCategories = async () => {
-    return await Category.bulkCreate(categoriesMock)
+    return await CategoryModel.bulkCreate(categoriesMock)
   }
 }
 
-module.exports = new CategoriesController()
+export default new CategoriesController()

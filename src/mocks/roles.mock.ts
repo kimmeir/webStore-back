@@ -1,4 +1,4 @@
-module.exports = [
+const rolesMock = [
   {
     value: 'USER'
   },
@@ -7,3 +7,4 @@ module.exports = [
   }
 ]
 
+export default rolesMock

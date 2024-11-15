@@ -1,7 +1,7 @@
-const db = require('../db')
-const { DataTypes } = require('sequelize')
+import { DataTypes } from 'sequelize'
+import { db } from '../db'
 
-const RolesModel = db.define('roles', {
+export const RolesModel = db.define('roles', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -14,5 +14,3 @@ const RolesModel = db.define('roles', {
     defaultValue: 'USER',
   }
 })
-
-module.exports = RolesModel

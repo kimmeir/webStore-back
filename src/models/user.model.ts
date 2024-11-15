@@ -1,8 +1,8 @@
-const db = require('../db')
-const { DataTypes } = require('sequelize')
-const RoleModel = require('./roles.model')
+import { db } from '../db'
+import { DataTypes } from 'sequelize'
+import { RolesModel } from './roles.model'
 
-const Users = db.define('users', {
+export const UsersModel = db.define('users', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -26,7 +26,7 @@ const Users = db.define('users', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: RoleModel,
+      model: RolesModel,
       key: 'id',
     },
     defaultValue: 1,
@@ -41,6 +41,4 @@ const Users = db.define('users', {
   },
 })
 
-Users.belongsTo(RoleModel, { foreignKey: 'roleId' })
-
-module.exports = Users
+UsersModel.belongsTo(RolesModel, { foreignKey: 'roleId' })

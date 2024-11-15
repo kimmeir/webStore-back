@@ -1,8 +1,9 @@
-const router = require('express').Router()
-const stripeController = require('../controllers/stripe.controller')
-const authMiddleware = require('../middleware/auth.middleware')
+import { Router } from 'express';
+import stripeController from '../controllers/stripe.controller';
+import authMiddleware from '../middleware/auth.middleware';
 
-router.post('/stripe-checkout', authMiddleware, stripeController.createPaymentIntent)
+const router = Router()
+
 router.post('/stripe-payment-method', authMiddleware, stripeController.createPaymentMethod)
 router.get('/stripe-payment-method', authMiddleware, stripeController.getCustomerPaymentMethods)
 router.post('/stripe-default-card', authMiddleware, stripeController.setCardAsDefault)

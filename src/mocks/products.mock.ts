@@ -70,4 +70,4 @@ const productsMock = [
   }
 ]
 
-module.exports = productsMock
+export default productsMock;
