@@ -7,6 +7,7 @@ import { RolesModel } from '../models/roles.model'
 import usersController from './users.controller'
 import productsController from './product.controller'
 import categoriesController from './categories.controller'
+import { WishesModel } from '../models/wishes.model';
 
 const force = true
 
@@ -20,6 +21,7 @@ export const db_init = async () => {
     await CategoryModel.sync({ force })
     await CartModel.sync({ force })
     await CartItemModel.sync({ force })
+    await WishesModel.sync({ force })
 
     await usersController.createMockUsers()
     await categoriesController.createMockCategories()

@@ -6,7 +6,7 @@ const force = false
 
 class WishesController {
   constructor() {
-    this.init()
+    // this.init()
   }
 
   init = async () => {
