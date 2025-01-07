@@ -15,7 +15,7 @@ const force = false
 class OrderController {
 
   constructor() {
-    this.init()
+    // this.init()
   }
 
   init = async () => {
