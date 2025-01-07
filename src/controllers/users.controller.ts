@@ -145,8 +145,8 @@ class UsersController {
 
   createMockUsers = async () => {
     try {
-      await UsersModel.bulkCreate(usersMock)
       await RolesModel.bulkCreate(rolesMock)
+      await UsersModel.bulkCreate(usersMock)
     } catch (error) {
       console.log('Create mock users error: ' + error)
     }
