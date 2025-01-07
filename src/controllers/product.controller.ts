@@ -30,20 +30,25 @@ class ProductController {
   }
 
   getProducts = async (req: any, res: any) => {
-    const { search } = req.query
-    if (search) {
-      const products = await ProductModel.findAll({
-        where: {
-          [Op.or]: {
-            title: { [Op.iLike]: `%${search}%` },
-            description: { [Op.iLike]: `%${search}%` },
-          },
-        }
-      })
-      return res.json(products)
+    try {
+
+      const { search } = req.query
+      if (search) {
+        const products = await ProductModel.findAll({
+          where: {
+            [Op.or]: {
+              title: { [Op.iLike]: `%${search}%` },
+              description: { [Op.iLike]: `%${search}%` },
+            },
+          }
+        })
+        return res.json(products)
+      }
+      const products = await ProductModel.findAll()
+      res.json(products)
+    } catch (error) {
+      res.status(400).json({ message: 'Get products error ' + error })
     }
-    const products = await ProductModel.findAll()
-    res.json(products)
   }
 
   getProductById = async (req: any, res: any) => {

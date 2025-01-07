@@ -17,10 +17,9 @@ const routes = [
   require('./routes/wishes.routes')
 ]
 
-if (reInitDB) {
-  console.log('Reinitializing database...')
-  db_init()
-}
+console.log('Check database...')
+db_init(reInitDB)
+
 app.use(cors())
 app.use(express.json())
 

@@ -10,31 +10,53 @@ import categoriesController from './categories.controller'
 import { WishesModel } from '../models/wishes.model';
 import { OrderItemsModel, OrdersModel } from '../models/orders.model';
 
-const force = true
-
-export const db_init = async () => {
+export const db_init = async (force = false) => {
   try {
-    await db.authenticate()
-
-    await UsersModel.sync({ force })
-    await RolesModel.sync({ force })
-    await ProductModel.sync({ force })
-    await CategoryModel.sync({ force })
-    await CartModel.sync({ force })
-    await CartItemModel.sync({ force })
-    await OrdersModel.sync({ force })
-    await OrderItemsModel.sync({ force })
-    await WishesModel.sync({ force })
-
-    await usersController.createMockUsers()
-    await categoriesController.createMockCategories()
-    await productsController.createMockProducts()
-
-    console.log('Initial data created!')
-
+    await createTables(force)
+    await createMocks()
   } catch (error) {
     console.error('Unable to create database tables:', error)
+
+    await createTables(true)
+    await createMocks()
   } finally {
     await db.close()
+  }
+}
+
+const createTables = async (force = false) => {
+  await db.authenticate()
+  await RolesModel.sync({ force })
+  await UsersModel.sync({ force })
+
+  await CategoryModel.sync({ force })
+  await ProductModel.sync({ force })
+
+  await CartModel.sync({ force })
+  await CartItemModel.sync({ force })
+
+  await OrdersModel.sync({ force })
+  await OrderItemsModel.sync({ force })
+
+  await WishesModel.sync({ force })
+}
+
+const createMocks = async () => {
+  const users = await UsersModel.findAll()
+  if (!users.length) {
+    await usersController.createMockUsers()
+    console.log('Initial Users created!')
+  }
+
+  const categories = await CategoryModel.findAll()
+  if (!categories.length) {
+    await categoriesController.createMockCategories()
+    console.log('Initial Categories created!')
+  }
+
+  const products = await ProductModel.findAll()
+  if (!products.length) {
+    await productsController.createMockProducts()
+    console.log('Initial Products created!')
   }
 }
