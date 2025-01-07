@@ -19,8 +19,6 @@ export const db_init = async (force = false) => {
 
     await createTables(true)
     await createMocks()
-  } finally {
-    await db.close()
   }
 }
 
