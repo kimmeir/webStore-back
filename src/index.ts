@@ -13,7 +13,8 @@ const routes = [
   require('./routes/categories.routes'),
   require('./routes/cart.routes'),
   require('./routes/stripe.routes'),
-  require('./routes/order.routes')
+  require('./routes/order.routes'),
+  require('./routes/wishes.routes')
 ]
 
 if (reInitDB) {

@@ -44,13 +44,18 @@ class OrderController {
 
       if (paymentResult.status === 'succeeded') {
         req.body.status = 'paid'
-        await this.createOrder(req, res, next)
+        const order = await this.createOrder(req, res, next)
         await cartController.clearCart(req, res)
+
+        res.json({
+          order: order,
+          status: true,
+          message: 'Create order'
+        })
       } else {
         res.status(400).json({ status: false, message: 'Payment error' })
       }
 
-      res.json({ status: true, message: 'Create order' })
     } catch
       (error) {
       res.status(400).json({ message: 'Create order error ' + error })
@@ -150,6 +155,4 @@ class OrderController {
   }
 }
 
-export default new
-
-OrderController()
+export default new OrderController()

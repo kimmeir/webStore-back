@@ -91,6 +91,24 @@ class CartController {
     }
   }
 
+  changeQuantity = async (req: any, res: any) => {
+    try {
+      console.log('Change quantity:', req.body)
+      const { id, quantity } = req.body
+      const cartId = await this.getCartId(req)
+
+      await CartItemModel.update(
+        { quantity },
+        { where: { cartId, id } }
+      )
+
+      await this.getCartItems(req, res)
+
+    } catch (error) {
+      res.status(400).json({ message: 'Change quantity error ' + error })
+    }
+  }
+
   bulkAddToCart = async (req: any, res: any) => {
     try {
       const { id: cartId } = req.user

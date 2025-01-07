@@ -8,5 +8,6 @@ router.get('/cart', authMiddleware, cartController.getCartItems)
 router.post('/cart/add-to-cart', authMiddleware, cartController.addItemToCart)
 router.post('/cart/bulk-add-to-cart', authMiddleware, cartController.bulkAddToCart)
 router.delete('/cart/remove-from-cart', authMiddleware, cartController.deleteCartItem)
+router.post('/cart/change-quantity', authMiddleware, cartController.changeQuantity)
 
 module.exports = router
