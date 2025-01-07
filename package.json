@@ -2,11 +2,12 @@
   "name": "web_store",
   "version": "1.0.0",
   "main": "src/index.ts",
-  "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "start:dev": "nodemon src/index.ts"
+    "build:start": "tsc npm start",
+    "dev": "ts-node-dev --respawn src/index.ts",
+    "deploy": "npm run build && npm start"
   },
   "keywords": [],
   "author": "",
