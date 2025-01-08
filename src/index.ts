@@ -14,7 +14,8 @@ const routes = [
   require('./routes/cart.routes'),
   require('./routes/stripe.routes'),
   require('./routes/order.routes'),
-  require('./routes/wishes.routes')
+  require('./routes/wishes.routes'),
+  require('./routes/ninja.routes')
 ]
 
 console.log('Check database...')
