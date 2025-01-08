@@ -1,6 +1,7 @@
 import { db } from '../db'
 import { CategoryModel } from '../models/category.model'
 import categoriesMock from '../mocks/categories.mock'
+import type { Request, Response } from 'express';
 
 const force = false
 
@@ -18,7 +19,7 @@ class CategoriesController {
     }
   }
 
-  createCategory = async (req: any, res: any) => {
+  createCategory = async (req: Request, res: Response) => {
     try {
       const newCategory = await CategoryModel.create(req.body)
       res.json(newCategory)
@@ -27,12 +28,12 @@ class CategoriesController {
     }
   }
 
-  getCategories = async (req: any, res: any) => {
+  getCategories = async (req: Request, res: Response) => {
     const categories = await CategoryModel.findAll()
     res.json(categories)
   }
 
-  getCategoryById = async (req: any, res: any) => {
+  getCategoryById = async (req: Request, res: Response) => {
     try {
       const id = req.params.id
       const category = await CategoryModel.findOne({ where: { id } })
@@ -42,7 +43,7 @@ class CategoriesController {
     }
   }
 
-  updateCategory = async (req: any, res: any) => {
+  updateCategory = async (req: Request, res: Response) => {
     try {
       const id = req.params.id
       const category = await CategoryModel.update(req.body, { where: { id } })
@@ -53,7 +54,7 @@ class CategoriesController {
     }
   }
 
-  deleteCategory = async (req: any, res: any) => {
+  deleteCategory = async (req: Request, res: Response) => {
     try {
       const id = req.params.id
       await CategoryModel.destroy({ where: { id } })

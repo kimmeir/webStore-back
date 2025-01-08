@@ -1,6 +1,7 @@
 import { db } from '../db';
 import { WishesModel } from '../models/wishes.model';
 import { ProductModel } from '../models/product.model';
+import type { Request, Response } from 'express';
 
 const force = false
 
@@ -14,8 +15,9 @@ class WishesController {
     await WishesModel.sync({ force })
   }
 
-  getWishesItems = async (req: any, res: any) => {
+  getWishesItems = async (req: Request, res: Response) => {
     try {
+      // @ts-ignore
       const { id: userId } = req.user
 
       const wishesItems = await WishesModel.findAll({
@@ -34,8 +36,9 @@ class WishesController {
     }
   }
 
-  addItemToWishes = async (req: any, res: any) => {
+  addItemToWishes = async (req: Request, res: Response) => {
     try {
+      // @ts-ignore
       const { id: userId } = req.user
       const { productId } = req.body
 
@@ -50,8 +53,9 @@ class WishesController {
     }
   }
 
-  removeWishesItem = async (req: any, res: any) => {
+  removeWishesItem = async (req: Request, res: Response): Promise<any> => {
     try {
+      // @ts-ignore
       const { id: userId } = req.user
       const { productId } = req.query
 

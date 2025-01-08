@@ -8,5 +8,6 @@ router.post('/stripe-payment-method', authMiddleware, stripeController.createPay
 router.get('/stripe-payment-method', authMiddleware, stripeController.getCustomerPaymentMethods)
 router.post('/stripe-default-card', authMiddleware, stripeController.setCardAsDefault)
 router.get('/stripe-customer', authMiddleware, stripeController.getCustomer)
+router.post('/stripe-customer', authMiddleware, stripeController.createCustomer)
 
 module.exports = router

@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken'
 import { validationResult } from 'express-validator';
+import type { Request, Response } from 'express';
 import { type NextFunction } from 'express';
 import { db } from '../db'
 import { config } from '../config';
-import { UsersModel } from '../models/user.model'
-import { RolesModel } from '../models/roles.model'
+import { addressEnum, AddressModel, IUser, RolesModel, UsersModel } from '../models/user.model'
 import usersMock from '../mocks/users.mock';
 import rolesMock from '../mocks/roles.mock';
 
@@ -33,9 +33,9 @@ class UsersController {
     }
   }
 
-  getUsers = async (req: any, res: any) => {
+  getUsers = async (req: Request, res: Response): Promise<any> => {
     try {
-      const users = await UsersModel.findAll({
+      const users: IUser = await UsersModel.findAll({
         attributes: { exclude: ['password', 'roleId'] },
         include: {
           model: RolesModel,
@@ -48,21 +48,36 @@ class UsersController {
     }
   }
 
-  getUserById = async (req: any, res: any, next: NextFunction, userId = null) => {
+  getUserById = async (req: Request, res: Response, next: NextFunction, userId = null): Promise<any> => {
     try {
       const id = userId ?? req.params.id
       const user: any = await UsersModel.findOne({
         where: { id },
-        attributes: { exclude: ['password', 'roleId'] },
-        include: {
-          model: RolesModel,
-          attributes: ['value'],
+        attributes: {
+          exclude: ['password', 'roleId', 'createdAt', 'updatedAt', 'id'],
         },
+        include: [
+          {
+            model: RolesModel,
+            attributes: ['value'],
+          }
+        ]
       })
         .then((user: any) => {
           user.setDataValue('role', user.role.value)
           return user
         })
+        .then(async (user: any) => {
+          if (user.billAddressId)
+            user.setDataValue('billAddress', await AddressModel.findOne({ where: { id: user.billAddressId } }))
+          return user
+        })
+        .then(async (user: any) => {
+          if (user.shipAddressId)
+            user.setDataValue('shipAddress', await AddressModel.findOne({ where: { id: user.shipAddressId } }))
+          return user
+        })
+
 
       return res.json(user)
     } catch (error) {
@@ -71,18 +86,19 @@ class UsersController {
 
   }
 
-  updateUser = async (req: any, res: any) => {
+  updateUser = async (req: Request, res: Response): Promise<any> => {
     try {
       const id = req.params.id
       const user = await UsersModel.update(req.body, { where: { id } })
         .then(() => UsersModel.findOne({ where: { id } }))
+
       return res.json(user)
     } catch (error) {
       res.status(400).json({ message: 'Update user error ' + error })
     }
   }
 
-  deleteUser = async (req: any, res: any) => {
+  deleteUser = async (req: Request, res: Response) => {
     try {
       const id = req.params.id
       await UsersModel.destroy({ where: { id } })
@@ -92,7 +108,7 @@ class UsersController {
     }
   }
 
-  registration = async (req: any, res: any) => {
+  registration = async (req: Request, res: Response): Promise<any> => {
     try {
       const result = validationResult(req)
       if (!result.isEmpty())
@@ -112,7 +128,7 @@ class UsersController {
     }
   }
 
-  login = async (req: any, res: any) => {
+  login = async (req: Request, res: Response): Promise<any> => {
     try {
       const result = validationResult(req)
       if (!result.isEmpty())
@@ -134,12 +150,50 @@ class UsersController {
     }
   }
 
-  getProfile = async (req: any, res: any, next: NextFunction) => {
+  getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // @ts-ignore
       const { id } = req.user
       await this.getUserById(req, res, next, id)
     } catch (error) {
       res.status(400).json({ message: 'Profile error ' + error })
+    }
+  }
+
+  updateProfile = async (req: Request, res: Response) => {
+    try {
+      // @ts-ignore
+      const { id } = req.user
+      req.params.id = id
+
+      await this.updateUser(req, res)
+    } catch (error) {
+      res.status(400).json({ message: 'Update profile error ' + error })
+    }
+  }
+
+  updateAddress = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    try {
+      // @ts-ignore
+      const { id } = req.user
+      const { type } = req.body
+
+      const user = await UsersModel.findOne({ where: { id } })
+      if (!user)
+        return res.status(400).json({ message: 'User not found' })
+
+      const addressId = user[addressEnum[type as keyof typeof addressEnum]]
+      if (addressId) {
+        await AddressModel.update(req.body, { where: { id: addressId } })
+      } else {
+        const address = await AddressModel.create(req.body)
+        user[addressEnum[type as keyof typeof addressEnum]] = address.id
+        await user.save()
+      }
+
+      await this.getProfile(req, res, next)
+    } catch (error: Error | any) {
+      res.status(400).json({ message: error.message });
     }
   }
 

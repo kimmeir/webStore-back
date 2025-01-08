@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import { type NextFunction } from 'express';
 import { UsersModel } from '../models/user.model';
 
@@ -5,7 +6,7 @@ require('dotenv')
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 class StripeController {
-  createPaymentIntent = async (req: any) => {
+  createPaymentIntent = async (req: Request) => {
     try {
       return await stripe.paymentIntents.create({
         amount: req.body.amount,
@@ -18,7 +19,7 @@ class StripeController {
     }
   }
 
-  confirmPaymentIntent = (req: any, res: any) => {
+  confirmPaymentIntent = (req: Request, res: Response) => {
     try {
       return stripe.paymentIntents.confirm(req.body.paymentIntentId, {
         return_url: 'http://localhost:3400/api/stripe-success',
@@ -28,10 +29,11 @@ class StripeController {
     }
   }
 
-  createCustomer = async (req: any, res: any) => {
+  createCustomer = async (req: Request, res: Response) => {
     try {
+      // @ts-ignore
       const { id } = req.user
-      const user = await UsersModel.findOne({ where: { id } })
+      let user = await UsersModel.findOne({ where: { id } })
 
       req.body = {
         ...req.body,
@@ -43,20 +45,23 @@ class StripeController {
         name: req.body.name,
         email: req.body.email,
       })
-      await UsersModel.update({ stripeId: customer.id }, { where: { id } })
-      return customer
-    } catch (error: any) {
+      user = await UsersModel.update({ stripeId: customer.id }, { where: { id } })
+        .then(() => UsersModel.findOne({ where: { id } }))
+
+      res.status(200).json(user)
+      // return customer
+    } catch (error: Error | any) {
       res.status(500).json({ error: error.message })
     }
   }
 
-  createPaymentMethod = async (req: any, res: any) => {
+  createPaymentMethod = async (req: Request, res: Response) => {
     try {
       let { stripeId, paymentMethodId } = req.body
-      if (!stripeId) {
-        const customer = await this.createCustomer(req, res)
-        stripeId = customer.id
-      }
+      // if (!stripeId) {
+      //   const customer = await this.createCustomer(req, res)
+      //   stripeId = customer.id
+      // }
 
       const paymentMethod = await stripe.paymentMethods.attach(
         paymentMethodId,
@@ -69,10 +74,13 @@ class StripeController {
     }
   }
 
-  getCustomerPaymentMethods = async (req: any, res: any) => {
+  getCustomerPaymentMethods = async (req: Request, res: Response) => {
     try {
-      const { stripeId } = req.query
+      // @ts-ignore
+      const { id } = req.user
+      const { stripeId } = await UsersModel.findOne({ where: { id } })
       const cards = await stripe.customers.listPaymentMethods(stripeId)
+      console.log('Cards:', cards)
 
       res.status(200).json(cards.data)
     } catch (error: any) {
@@ -80,8 +88,9 @@ class StripeController {
     }
   }
 
-  setCardAsDefault = async (req: any, res: any) => {
+  setCardAsDefault = async (req: Request, res: Response) => {
     try {
+      // @ts-ignore
       const { id } = req.user
       const { paymentMethodId } = req.body
       const { stripeId } = await UsersModel.findOne({ where: { id } })
@@ -99,9 +108,11 @@ class StripeController {
     }
   }
 
-  getCustomer = async (req: any, res: any, next: NextFunction, locale = false) => {
+  getCustomer = async (req: Request, res: Response, next: NextFunction, locale = false) => {
     try {
+      // @ts-ignore
       console.log('Get customer:', req.user)
+      // @ts-ignore
       const { id } = req.user
       const user = await UsersModel.findOne({ where: { id } })
       const customer = await stripe.customers.retrieve(user.stripeId)
@@ -115,8 +126,9 @@ class StripeController {
     }
   }
 
-  getCustomerLocale = async (req: any) => {
+  getCustomerLocale = async (req: Request) => {
     try {
+      // @ts-ignore
       const { id } = req.user
       const user = await UsersModel.findOne({ where: { id } })
       return await stripe.customers.retrieve(user.stripeId)

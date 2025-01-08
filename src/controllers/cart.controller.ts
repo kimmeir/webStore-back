@@ -1,6 +1,7 @@
 import { db } from '../db'
 import { CartItemModel, CartModel, } from '../models/cart.model'
 import { ProductModel } from '../models/product.model';
+import type { Request, Response } from 'express';
 
 const force = false
 
@@ -15,8 +16,9 @@ class CartController {
     await CartItemModel.sync({ force })
   }
 
-  createCart = async (req: any) => {
+  createCart = async (req: Request) => {
     try {
+      // @ts-ignore
       const { id: userId } = req.user
 
       return await CartModel.create({ userId })
@@ -25,8 +27,9 @@ class CartController {
     }
   }
 
-  getCartId = async (req: any) => {
+  getCartId = async (req: Request) => {
     try {
+      // @ts-ignore
       const { id: userId } = req.user
 
       const cart = await CartModel.findOne({ where: { userId } }) ?? await this.createCart(req)
@@ -37,7 +40,7 @@ class CartController {
     }
   }
 
-  getCartItems = async (req: any, res: any) => {
+  getCartItems = async (req: Request, res: Response) => {
     try {
       const cartId = await this.getCartId(req)
 
@@ -56,7 +59,7 @@ class CartController {
     }
   }
 
-  addItemToCart = async (req: any, res: any) => {
+  addItemToCart = async (req: Request, res: Response) => {
     try {
       const { productId, quantity } = req.body
       const cartId = await this.getCartId(req)
@@ -79,7 +82,7 @@ class CartController {
     }
   }
 
-  deleteCartItem = async (req: any, res: any) => {
+  deleteCartItem = async (req: Request, res: Response) => {
     try {
       const cartId = await this.getCartId(req)
       const id = req.query.id
@@ -91,7 +94,7 @@ class CartController {
     }
   }
 
-  changeQuantity = async (req: any, res: any) => {
+  changeQuantity = async (req: Request, res: Response) => {
     try {
       console.log('Change quantity:', req.body)
       const { id, quantity } = req.body
@@ -109,8 +112,9 @@ class CartController {
     }
   }
 
-  bulkAddToCart = async (req: any, res: any) => {
+  bulkAddToCart = async (req: Request, res: Response) => {
     try {
+      // @ts-ignore
       const { id: cartId } = req.user
       const items = req.body.map((item: any) => ({
         cartId,
@@ -129,7 +133,7 @@ class CartController {
     }
   }
 
-  clearCart = async (req: any, res: any) => {
+  clearCart = async (req: Request, res: Response) => {
     try {
       const cartId = await this.getCartId(req)
 

@@ -1,4 +1,5 @@
 import stripeController from './stripe.controller';
+import type { Request, Response } from 'express';
 import { NextFunction } from 'express';
 import { CartItemModel } from '../models/cart.model';
 import { ProductModel } from '../models/product.model';
@@ -23,8 +24,9 @@ class OrderController {
     await OrderItemsModel.sync({ force })
   }
 
-  initOrder = async (req: any, res: any, next: NextFunction) => {
+  initOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // @ts-ignore
       const { id: userId } = req.user
       const { paymentMethod } = req.body
 
@@ -62,8 +64,9 @@ class OrderController {
     }
   }
 
-  createOrder = async (req: any, res: any, next: NextFunction) => {
+  createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // @ts-ignore
       const { id: userId } = req.user
 
       const order = await OrdersModel.create({
@@ -105,8 +108,9 @@ class OrderController {
     }
   }
 
-  getOrders = async (req: any, res: any) => {
+  getOrders = async (req: Request, res: Response) => {
     try {
+      // @ts-ignore
       const { id: userId } = req.user
 
       const orders = await OrdersModel.findAll({ where: { userId } })
@@ -117,7 +121,7 @@ class OrderController {
     }
   }
 
-  getOrderByID = async (req: any, res: any) => {
+  getOrderByID = async (req: Request, res: Response) => {
     try {
       const { id: orderId } = req.params
 
@@ -136,7 +140,7 @@ class OrderController {
     }
   }
 
-  getOrderItemsByOrderId = async (req: any, res: any) => {
+  getOrderItemsByOrderId = async (req: Request, res: Response) => {
     try {
       const { id: orderId } = req.params
 
