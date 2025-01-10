@@ -54,36 +54,35 @@ class UsersController {
       const user: any = await UsersModel.findOne({
         where: { id },
         attributes: {
-          exclude: ['password', 'roleId', 'createdAt', 'updatedAt', 'id'],
+          exclude: ['password', 'roleId', 'createdAt', 'updatedAt', 'billAddressId', 'shipAddressId', 'id'],
         },
         include: [
           {
             model: RolesModel,
             attributes: ['value'],
-          }
+          },
+          {
+            model: AddressModel,
+            as: 'billAddress',
+            attributes: { exclude: ['id', 'createdAt', 'updatedAt', 'type'] },
+          },
+          {
+            model: AddressModel,
+            as: 'shipAddress',
+            attributes: { exclude: ['id', 'createdAt', 'updatedAt', 'type'] }
+          },
         ]
       })
         .then((user: any) => {
           user.setDataValue('role', user.role.value)
           return user
         })
-        .then(async (user: any) => {
-          if (user.billAddressId)
-            user.setDataValue('billAddress', await AddressModel.findOne({ where: { id: user.billAddressId } }))
-          return user
-        })
-        .then(async (user: any) => {
-          if (user.shipAddressId)
-            user.setDataValue('shipAddress', await AddressModel.findOne({ where: { id: user.shipAddressId } }))
-          return user
-        })
-
 
       return res.json(user)
-    } catch (error) {
+    } catch
+      (error) {
       res.status(400).json({ message: 'Get user by id error ' + error })
     }
-
   }
 
   updateUser = async (req: Request, res: Response): Promise<any> => {
@@ -207,4 +206,6 @@ class UsersController {
   }
 }
 
-export default new UsersController()
+export default new
+
+UsersController()

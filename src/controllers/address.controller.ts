@@ -15,13 +15,11 @@ class AddressController {
     }
   }
 
-  public async createAddress(req: Request, res: Response) {
+  public async createAddress(address: any) {
     try {
-      const address = await AddressModel.create(req.body);
-
-      res.status(201).json(address);
+      return await AddressModel.create(address);
     } catch (error: Error | any) {
-      res.status(400).json({ message: error.message });
+      throw new Error(error.message);
     }
   }
 

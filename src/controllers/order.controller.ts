@@ -1,10 +1,11 @@
 import stripeController from './stripe.controller';
 import type { Request, Response } from 'express';
-import { NextFunction } from 'express';
-import { CartItemModel } from '../models/cart.model';
 import { ProductModel } from '../models/product.model';
 import cartController from './cart.controller';
 import { OrderItemsModel, OrdersModel } from '../models/orders.model';
+import addressController from './address.controller';
+import { CartItemModel } from '../models/cart.model';
+import { AddressModel } from '../models/user.model';
 
 enum PaymentMethod {
   default = 'default',
@@ -24,10 +25,8 @@ class OrderController {
     await OrderItemsModel.sync({ force })
   }
 
-  initOrder = async (req: Request, res: Response, next: NextFunction) => {
+  initOrder = async (req: Request, res: Response): Promise<any> => {
     try {
-      // @ts-ignore
-      const { id: userId } = req.user
       const { paymentMethod } = req.body
 
       const customer = await stripeController.getCustomerLocale(req)
@@ -46,7 +45,13 @@ class OrderController {
 
       if (paymentResult.status === 'succeeded') {
         req.body.status = 'paid'
-        const order = await this.createOrder(req, res, next)
+        const order = await this.createOrder(req, res)
+
+        if (!order) {
+          res.status(400).json({ message: 'Create order error' })
+          return false;
+        }
+
         await cartController.clearCart(req, res)
 
         res.json({
@@ -64,23 +69,26 @@ class OrderController {
     }
   }
 
-  createOrder = async (req: Request, res: Response, next: NextFunction) => {
+  createOrder = async (req: Request, res: Response) => {
     try {
       // @ts-ignore
       const { id: userId } = req.user
 
-      const order = await OrdersModel.create({
-        userId,
-        paymentIntentId: req.body.paymentIntentId,
-        paymentMethodId: req.body.paymentMethodId,
-        status: req.body.status,
-        total: req.body.amount / 100,
-      })
+      if (req.body?.billAddress) {
+        const billAddress = await addressController.createAddress({ type: 'bill', ...req.body.billAddress })
+        req.body.billAddressId = billAddress.id
+      }
 
-      if (!order.id) res.status(400).json({ message: 'Create order error' })
+      if (req.body?.shipAddress) {
+        const shipAddress = await addressController.createAddress({ type: 'ship', ...req.body.billAddress })
+        req.body.shipAddressId = shipAddress.id
+      }
 
       const cartId = await cartController.getCartId(req)
-      if (!cartId) res.status(400).json({ message: 'Get cart id error' })
+      if (!cartId) {
+        res.status(400).json({ message: 'Get cart id error' })
+        return false;
+      }
 
       const cartItems = await CartItemModel.findAll({
         where: { cartId },
@@ -90,7 +98,26 @@ class OrderController {
         },
         attributes: { exclude: ['id', 'cartId', 'productId', 'createdAt', 'updatedAt'] }
       })
-      if (!cartItems) res.status(400).json({ message: 'Get cart items error' })
+
+      if (!cartItems) {
+        res.status(400).json({ message: 'Get cart items error' })
+        return false;
+      }
+
+      const order = await OrdersModel.create({
+        userId,
+        paymentIntentId: req.body.paymentIntentId,
+        paymentMethodId: req.body.paymentMethodId,
+        status: req.body.status,
+        total: req.body.amount / 100,
+        billAddressId: req.body?.billAddressId ?? null,
+        shipAddressId: req.body?.shipAddressId ?? null,
+      })
+
+      if (!order.id) {
+        res.status(400).json({ message: 'Create order error' })
+        return false;
+      }
 
       const products = cartItems.map((item: any) => ({
         orderId: order.id,
@@ -99,12 +126,15 @@ class OrderController {
         price: item.product.price,
       }))
       const orderItems = await OrderItemsModel.bulkCreate(products)
-      if (!orderItems) res.status(400).json({ message: 'Create order items error' })
+      if (!orderItems) {
+        res.status(400).json({ message: 'Create order items error' })
+        return false;
+      }
 
       return order
     } catch
       (error) {
-      res.status(400).json({ message: 'Create order error ' + error })
+      return res.status(400).json({ message: 'Create order error ' + error })
     }
   }
 
@@ -129,8 +159,12 @@ class OrderController {
         where:
           { id: orderId },
         attributes: {
-          exclude: ['userId', 'paymentIntentId', 'paymentMethodId', 'updatedAt']
-        }
+          exclude: ['userId', 'paymentIntentId', 'paymentMethodId', 'billAddressId', 'shipAddressId', 'updatedAt']
+        },
+        include: [
+          { model: AddressModel, as: 'billAddress' },
+          { model: AddressModel, as: 'shipAddress' }
+        ]
       })
 
       res.json(order)

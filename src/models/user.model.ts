@@ -40,7 +40,6 @@ export const AddressModel = db.define('address', {
     autoIncrement: true,
     allowNull: false,
   },
-
   country: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -139,5 +138,5 @@ export const UsersModel = db.define('users', {
 })
 
 UsersModel.belongsTo(RolesModel, { foreignKey: 'roleId' })
-UsersModel.belongsTo(AddressModel, { foreignKey: 'billAddressId' })
-UsersModel.belongsTo(AddressModel, { foreignKey: 'shipAddressId' })
+UsersModel.belongsTo(AddressModel, { as: 'billAddress', foreignKey: 'billAddressId' })
+UsersModel.belongsTo(AddressModel, { as: 'shipAddress', foreignKey: 'shipAddressId' })
