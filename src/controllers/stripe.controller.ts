@@ -80,7 +80,6 @@ class StripeController {
       const { id } = req.user
       const { stripeId } = await UsersModel.findOne({ where: { id } })
       const cards = await stripe.customers.listPaymentMethods(stripeId)
-      console.log('Cards:', cards)
 
       res.status(200).json(cards.data)
     } catch (error: any) {
